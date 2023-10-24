@@ -46,7 +46,7 @@ const handleDelete = async (user) => {
 
 const INITIAL_VISIBLE_COLUMNS = ["nombre", "genero", "edad", "carrere"];
 
-function renderCell(user, columnKey) {
+function renderCell(user, columnKey, onEditClick) {
   const cellValue = user[columnKey];
 
   switch (columnKey) {
@@ -69,7 +69,7 @@ function renderCell(user, columnKey) {
             size="sm"
             variant="filled"
             color="orange"
-            // onClick={() => handleEdit(user)}
+            onClick={() => onEditClick(user)}
           >
             Editar
           </Button>
@@ -103,12 +103,59 @@ function DashboardPrisma() {
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [newUser, setNewUser] = useState({
     nombre: "",
     genero: "",
     edad: "",
     carrere: "",
   });
+  const [editingUser, setEditingUser] = useState(null);
+
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setShowEditForm(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (editingUser) {
+      try {
+        const response = await fetch(`/api/registros/${editingUser.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editingUser),
+        });
+
+        if (response.ok) {
+          fetchData();
+          setEditingUser(null);
+          setShowEditForm(false);
+        } else {
+          const data = await response.json();
+          console.error(data.mensaje);
+        }
+      } catch (error) {
+        console.error("Error al editar el estudiante:", error);
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingUser(null); 
+    setShowEditForm(false);
+  };
+
+  const handleEditUserChange = (field, value) => {
+    if (field === "edad") {
+      value = parseInt(value, 10);
+    }
+    setEditingUser({
+      ...editingUser,
+      [field]: value,
+    });
+  };
 
   useEffect(() => {
     fetchData();
@@ -403,7 +450,7 @@ function DashboardPrisma() {
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
+                <TableCell>{renderCell(item, columnKey, handleEdit)}</TableCell>
               )}
             </TableRow>
           )}
@@ -503,6 +550,104 @@ function DashboardPrisma() {
             }}
           >
             Cerrar
+          </Button>
+        </div>
+      )}
+
+      {showEditForm && (
+        <div className="mt-3">
+          <h2 className="text-default-500 text-2xl font-semibold mb-2">
+            Editar Estudiante
+          </h2>
+          <Input
+            className="mb-2"
+            placeholder="Nombre"
+            value={editingUser.nombre}
+            onChange={(e) => handleEditUserChange("nombre", e.target.value)}
+            style={{
+              color: "black",
+              borderRadius: "9px",
+              border: "1px solid white",
+              paddingBlock: "10px",
+              paddingLeft: "10px",
+              paddingRight: "10px",
+              paddingTop: "10px",
+            }}
+          />
+          <Input
+            className="mb-2"
+            placeholder="Genero"
+            value={editingUser.genero}
+            onChange={(e) => handleEditUserChange("genero", e.target.value)}
+            style={{
+              color: "black",
+              borderRadius: "9px",
+              border: "1px solid white",
+              paddingBlock: "10px",
+              paddingLeft: "10px",
+              paddingRight: "10px",
+              paddingTop: "10px",
+            }}
+          />
+          <Input
+            className="mb-2"
+            placeholder="Edad"
+            value={editingUser.edad}
+            onChange={(e) => handleEditUserChange("edad", e.target.value)}
+            style={{
+              color: "black",
+              borderRadius: "9px",
+              border: "1px solid white",
+              paddingBlock: "10px",
+              paddingLeft: "10px",
+              paddingRight: "10px",
+              paddingTop: "10px",
+            }}
+          />
+          <Input
+            className="mb-2"
+            placeholder="Carrera"
+            value={editingUser.carrere}
+            onChange={(e) => handleEditUserChange("carrere", e.target.value)}
+            style={{
+              color: "black",
+              borderRadius: "9px",
+              border: "1px solid white",
+              paddingBlock: "10px",
+              paddingLeft: "10px",
+              paddingRight: "10px",
+              paddingTop: "10px",
+            }}
+          />
+          <Button
+            className="mt-2"
+            size="sm"
+            onClick={handleSaveEdit}
+            style={{
+              borderRadius: "9px",
+              border: "1px solid white",
+              paddingBlock: "10px",
+              paddingLeft: "10px",
+              paddingRight: "10px",
+              paddingTop: "10px",
+            }}
+          >
+            Guardar Cambios
+          </Button>
+          <Button
+            className="mt-2 ml-2"
+            size="sm"
+            onClick={handleCancelEdit}
+            style={{
+              borderRadius: "9px",
+              border: "1px solid white",
+              paddingBlock: "10px",
+              paddingLeft: "10px",
+              paddingRight: "10px",
+              paddingTop: "10px",
+            }}
+          >
+            Cancelar
           </Button>
         </div>
       )}
