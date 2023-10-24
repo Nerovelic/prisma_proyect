@@ -23,30 +23,9 @@ import { columns } from "./data";
 import { capitalize } from "../libs/utils";
 const API_BASE_URL = "http://localhost:3000/api/registros";
 
-const handleDelete = async (user) => {
-  if (
-    window.confirm(`¿Estás seguro de que deseas eliminar a ${user.nombre}?`)
-  ) {
-    try {
-      const response = await fetch(`/api/registros/${user.id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        fetchData();
-      } else {
-        const data = await response.json();
-        console.error(data.mensaje);
-      }
-    } catch (error) {
-      console.error("Error al eliminar al estudiante:", error);
-    }
-  }
-};
-
 const INITIAL_VISIBLE_COLUMNS = ["nombre", "genero", "edad", "carrere"];
 
-function renderCell(user, columnKey, onEditClick) {
+function renderCell(user, columnKey, onEditClick, handleDelete) {
   const cellValue = user[columnKey];
 
   switch (columnKey) {
@@ -117,6 +96,27 @@ function DashboardPrisma() {
   const handleEdit = (user) => {
     setEditingUser(user);
     setShowEditForm(true);
+  };
+
+  const handleDelete = async (user) => {
+    if (
+      window.confirm(`¿Estás seguro de que deseas eliminar a ${user.nombre}?`)
+    ) {
+      try {
+        const response = await fetch(`/api/registros/${user.id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          fetchData();
+        } else {
+          const data = await response.json();
+          console.error(data.mensaje);
+        }
+      } catch (error) {
+        console.error("Error al eliminar al estudiante:", error);
+      }
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -341,13 +341,13 @@ function DashboardPrisma() {
             </Dropdown>
             <div className="flex items-center">
               <Button
-                className="bg-foreground text-background"
+                className="bg-foreground text-background flex items-center"
                 size="sm"
                 onClick={() => setShowCreateForm(!showCreateForm)}
               >
                 Añadir nuevo
+                <PlusIcon className="text-background ml-1" />{" "}
               </Button>
-              <PlusIcon className="text-background ml-1" />{" "}
             </div>
           </div>
         </div>
@@ -456,7 +456,9 @@ function DashboardPrisma() {
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey, handleEdit)}</TableCell>
+                <TableCell>
+                  {renderCell(item, columnKey, handleEdit, handleDelete)}
+                </TableCell>
               )}
             </TableRow>
           )}
