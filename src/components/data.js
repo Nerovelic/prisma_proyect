@@ -1,5 +1,10 @@
 export const columns = [
   {
+    uid: "id",
+    name: "ID",
+    sortable: true,
+  },
+  {
     uid: "nombre",
     name: "Nombre",
     sortable: true,

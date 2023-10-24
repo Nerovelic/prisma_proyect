@@ -50,6 +50,8 @@ function renderCell(user, columnKey, onEditClick) {
   const cellValue = user[columnKey];
 
   switch (columnKey) {
+    case "id":
+      return cellValue;
     case "genero":
       return <p className="text-bold text-small capitalize">{cellValue}</p>;
     case "edad":
@@ -143,7 +145,7 @@ function DashboardPrisma() {
   };
 
   const handleCancelEdit = () => {
-    setEditingUser(null); 
+    setEditingUser(null);
     setShowEditForm(false);
   };
 
@@ -326,7 +328,11 @@ function DashboardPrisma() {
                 {columns.map((column) => (
                   <DropdownItem
                     key={column.uid}
-                    className="capitalize text-white"
+                    className={`capitalize text-white ${
+                      visibleColumns.has(column.uid) || column.uid === "id"
+                        ? "bg-black text-white"
+                        : ""
+                    }`}
                   >
                     {capitalize(column.name)}
                   </DropdownItem>
